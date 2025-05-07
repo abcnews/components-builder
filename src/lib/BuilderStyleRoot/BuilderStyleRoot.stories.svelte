@@ -24,6 +24,11 @@
       <input type="checkbox" />
       Combine Coalition
     </label>
+
+    <label>
+      Your name
+      <input type="text" />
+    </label>
   </fieldset>
 
   <fieldset>

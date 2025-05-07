@@ -8,6 +8,9 @@
 
 <svelte:head>
   <style>
+    :root {
+      color-scheme: dark light;
+    }
     .builder-style-root {
       font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
       line-height: 1.5;
