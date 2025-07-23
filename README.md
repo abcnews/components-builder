@@ -70,7 +70,7 @@ Note that the screenshot tool is not fast. We haven't been able to speed up the 
 />
 ```
 
-The `defaultMarkerName` Function provides a user-friendly version of the marker for the preview step. This is the same funcitopn as the `MarkerAdmin` component.
+The `defaultMarkerName` Function provides a user-friendly version of the marker for the preview step. This is the same function as the `MarkerAdmin` component.
 
 Prefixes correlate to the different marker types that have been implemented in the app. This is the same object as the `MarkerAdmin` component.
 
@@ -149,7 +149,7 @@ This uses the native dialogue element, so focus will always be inside the modal.
 
 ## Google Doc Scrollyteller
 
-This component lets edits draft stories in Google Docs and preview to scroll teller in real time. Period this is useful because multiple people can be editing at once and have a real-time preview, whereas the CMS is single user and can be slow to iterate on.
+This component lets edits draft stories in Google Docs and preview to scrollyteller in real time. This is useful because multiple people can be editing at once and have a real-time preview, whereas the CMS is single user and can be slow to iterate on.
 
 This component must be set up on its own page, as it has two different routes built into it. An example implementation follows:
 
@@ -194,7 +194,7 @@ As a prerequisite your builder must store its state in window.location.hash. E.g
 
 `defaultMarkerName` is a function that returns a user friendly name for the marker when the user clicks the save button. You can use this to customise default marker names based on the current hash, which can be useful if you have several different visualisations with distinct names.
 
-Prefixes correlate to the different marker types that have been implemented in the app. Users can choose which type of marker they want to copy. This is the same object as the `MarkerAdmin` component.
+Prefixes correlate to the different marker types that have been implemented in the app. Users can choose which type of marker they want to copy. This is the same object as the `ScreenshotTool` component.
 
 ## Developing
 
