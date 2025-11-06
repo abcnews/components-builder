@@ -7,7 +7,7 @@
  * License : https://github.com/eligrey/FileSaver.js/blob/master/LICENSE.md (MIT)
  * source  : http://purl.eligrey.com/github/FileSaver.js
  */
-export function saveAs(blob, name) {
+export default function saveAs(blob, name) {
   var a = document.createElement("a");
   name = name || blob.name || "download";
 

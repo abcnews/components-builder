@@ -16,7 +16,7 @@ A two column frame you can use to scaffold your builder.
 
 ```svelte
 <script lang="ts">
-  import { BuilderFrame } from '@abcnews/components-builder';
+  import { BuilderStyleRoot, BuilderFrame } from '@abcnews/components-builder';
 </script>
 
 {#snippet Viz()}
@@ -211,24 +211,10 @@ Everything inside `src/lib` is part of the library, everything inside `src/route
 To build the library:
 
 ```bash
-npm run package
-```
-
-To create a production version of the showcase app:
-
-```bash
 npm run build
 ```
 
-You can preview the production build with `npm run preview`.
-
-> To deploy the app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for the target environment.
-
-## Publishing
-
-Go into the `package.json` and give the package the desired name through the `"name"` option. Also consider adding a `"license"` field and point it to a `LICENSE` file which you can create from a template (one popular option is the [MIT license](https://opensource.org/license/mit/)).
-
-To publish the library to [npm](https://www.npmjs.com):
+Then publish the new version with:
 
 ```bash
 npm publish
