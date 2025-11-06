@@ -1,9 +1,9 @@
 <script>
   import { untrack } from "svelte";
   import JSZip from "jszip";
-  import { saveAs } from "file-saver";
   import eachLimit from "async/eachLimit";
   import Modal from "$lib/Modal/Modal.svelte";
+  import saveAs from "./saveAs";
 
   const GENERATOR_URL = "https://fallback-automations-yknow.kyd.au/api";
   const GENERATOR_MAX_PARALLEL = 3;

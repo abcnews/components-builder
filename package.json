@@ -64,7 +64,6 @@
     "@abcnews/svelte-scrollyteller": "github:abcnews/svelte-scrollyteller#feature/future-news",
     "async": "^3.2.6",
     "bootstrap-icons": "^1.11.3",
-    "file-saver": "^2.0.5",
     "jszip": "^3.10.1",
     "svelte-bootstrap-icons": "^3.1.2"
   }
