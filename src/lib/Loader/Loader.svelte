@@ -8,7 +8,7 @@
 
 <div class="loader" style:--width={width}>
   <div class="loader__widget"></div>
-  <div class="loader__text">{@render children()}</div>
+  <div class="loader__text">{@render children?.()}</div>
 </div>
 
 <style>
