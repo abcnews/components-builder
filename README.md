@@ -196,6 +196,15 @@ As a prerequisite your builder must store its state in window.location.hash. E.g
 
 Prefixes correlate to the different marker types that have been implemented in the app. Users can choose which type of marker they want to copy. This is the same object as the `ScreenshotTool` component.
 
+## Loader
+
+A fairly straightforward spinner with the text "Loading" underneath. Use it when the user needs to wait for a process to complete. You can adjust the size or text:
+
+```svelte
+<Loader width="32px" />
+<Loader>Reticulating splines</Loader>
+```
+
 ## Developing
 
 Once you've nstalled dependencies with `npm install`, start a development storybook:

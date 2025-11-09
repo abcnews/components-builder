@@ -8,3 +8,4 @@ export { default as ScreenshotTool } from "./ScreenshotTool/ScreenshotTool.svelt
 export { default as Typeahead } from "./Typeahead/Typeahead.svelte";
 export { default as UpdateChecker } from "./UpdateChecker/UpdateChecker.svelte";
 export { default as MarkerAdmin } from "./MarkerAdmin/MarkerAdmin.svelte";
+export { default as Loader } from "./Loader/Loader.svelte";
