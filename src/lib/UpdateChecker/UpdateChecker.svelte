@@ -92,7 +92,7 @@
 
   function onClick() {
     // @ts-ignore
-    window.location = String(Window.location).replace(
+    window.location = String(window.location).replace(
       `/${newVersion?.thisVersion}/`,
       `/${newVersion?.newVersion}/`,
     );
