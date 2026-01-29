@@ -53,50 +53,59 @@
     border: 1px solid rgba(0, 0, 0, 0.2);
     border-radius: 0.5rem;
     animation: fadein 0.2s;
-    &::backdrop {
-      animation: fadein 0.2s;
-      background: rgba(0, 0, 0, 0.05);
-    }
-    :global {
-      .menu {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-      }
-      .menu--double {
-        display: grid;
-        grid-template-columns: 50% 50%;
-        gap: 0.25rem;
-        & li {
-          white-space: nowrap;
-        }
-      }
-      .section {
-        padding: 0.75rem;
-      }
+  }
 
-      .item,
-      button.item {
-        display: block;
-        width: 100%;
-        border: none;
-        background: none;
-        text-align: left;
-        cursor: pointer;
-        margin: 0 !important;
-        font-size: 1rem;
-        &:focus-visible,
-        &:hover {
-          background: Highlight;
-          color: HighlightText;
-        }
-      }
-      hr {
-        border: none;
-        margin: 0;
-        padding: 0;
-        border-bottom: 1px solid var(--border);
-      }
+  .dialog::backdrop {
+    animation: fadein 0.2s;
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  :global {
+    .dialog .menu {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .dialog .menu--double {
+      display: grid;
+      grid-template-columns: 50% 50%;
+      gap: 0.25rem;
+    }
+
+    .dialog .menu--double li {
+      white-space: nowrap;
+    }
+
+    .dialog .section {
+      padding: 0.75rem;
+    }
+
+    .dialog .item,
+    .dialog button.item {
+      display: block;
+      width: 100%;
+      border: none;
+      background: none;
+      text-align: left;
+      cursor: pointer;
+      margin: 0 !important;
+      font-size: 1rem;
+    }
+
+    .dialog .item:focus-visible,
+    .dialog .item:hover,
+    .dialog button.item:focus-visible,
+    .dialog button.item:hover {
+      background: Highlight;
+      color: HighlightText;
+    }
+
+    .dialog hr {
+      border: none;
+      margin: 0;
+      padding: 0;
+      border-bottom: 1px solid var(--border);
     }
   }
 
