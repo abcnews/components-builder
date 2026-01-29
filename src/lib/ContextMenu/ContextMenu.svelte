@@ -60,53 +60,51 @@
     background: rgba(0, 0, 0, 0.05);
   }
 
-  :global {
-    .dialog .menu {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-    }
+  :global(.dialog .menu) {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
 
-    .dialog .menu--double {
-      display: grid;
-      grid-template-columns: 50% 50%;
-      gap: 0.25rem;
-    }
+  :global(.dialog .menu--double) {
+    display: grid;
+    grid-template-columns: 50% 50%;
+    gap: 0.25rem;
+  }
 
-    .dialog .menu--double li {
-      white-space: nowrap;
-    }
+  :global(.dialog .menu--double li) {
+    white-space: nowrap;
+  }
 
-    .dialog .section {
-      padding: 0.75rem;
-    }
+  :global(.dialog .section) {
+    padding: 0.75rem;
+  }
 
-    .dialog .item,
-    .dialog button.item {
-      display: block;
-      width: 100%;
-      border: none;
-      background: none;
-      text-align: left;
-      cursor: pointer;
-      margin: 0 !important;
-      font-size: 1rem;
-    }
+  :global(.dialog .item),
+  :global(.dialog button.item) {
+    display: block;
+    width: 100%;
+    border: none;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+    margin: 0 !important;
+    font-size: 1rem;
+  }
 
-    .dialog .item:focus-visible,
-    .dialog .item:hover,
-    .dialog button.item:focus-visible,
-    .dialog button.item:hover {
-      background: Highlight;
-      color: HighlightText;
-    }
+  :global(.dialog .item:focus-visible),
+  :global(.dialog .item:hover),
+  :global(.dialog button.item:focus-visible),
+  :global(.dialog button.item:hover) {
+    background: Highlight;
+    color: HighlightText;
+  }
 
-    .dialog hr {
-      border: none;
-      margin: 0;
-      padding: 0;
-      border-bottom: 1px solid var(--border);
-    }
+  :global(.dialog hr) {
+    border: none;
+    margin: 0;
+    padding: 0;
+    border-bottom: 1px solid var(--border);
   }
 
   @keyframes fadein {
