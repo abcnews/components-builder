@@ -240,7 +240,7 @@
       }
 
       let sanitisedMarker = text;
-      Object.keys(prefixes).forEach(
+      Object.values(prefixes).forEach(
         (prefix) => (sanitisedMarker = sanitisedMarker.replace(prefix, "")),
       );
 
