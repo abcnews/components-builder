@@ -2,7 +2,19 @@
   import { onMount } from "svelte";
   import { X } from "svelte-bootstrap-icons";
 
-  let { children, footerChildren, title = "", onClose = () => {} } = $props();
+  let {
+    children,
+    footerChildren,
+    title = "",
+    onClose = () => {},
+    position = "centre",
+  } = $props<{
+    children?: any;
+    footerChildren?: any;
+    title?: string;
+    onClose?: () => void;
+    position?: string;
+  }>();
   let dialogEl = $state<HTMLDialogElement | undefined>();
   let rect = $state<DOMRect>();
   $effect(() => {
@@ -25,9 +37,10 @@
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+<!-- We must track clicks on the modal so clicking the backdrop can close it. This is not an accessibility issue. -->
 <dialog
-  class="modal"
   bind:this={dialogEl}
+  class="modal modal--{position}"
   onclick={onCloseTypescriptProxy}
   onclose={onCloseTypescriptProxy}
 >
@@ -70,6 +83,14 @@
     &::backdrop {
       animation: fadein 0.2s;
       background: rgba(0, 0, 0, 0.8);
+    }
+  }
+  .modal--right {
+    left: 100%;
+    transform: translate(calc(-100% - 2rem), -50%);
+    &::backdrop {
+      animation: fadein 0.2s;
+      background: linear-gradient(to left, rgba(0, 0, 0, 0.8), transparent 50%);
     }
   }
 

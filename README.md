@@ -136,6 +136,11 @@ You can provide your own footer elements to make either an okay/cancel alert, or
 
 This uses the native dialogue element, so focus will always be inside the modal. Take care not to show more than one at a time.
 
+Use the `position` prop to control where the modal appears:
+
+- `centre` (default): Centred in the screen with a full dark backdrop.
+- `right`: Aligned to the right, with a gradient backdrop that leaves your viz visible. Especially useful when the modal changes the viz reactively, so you can see the results.
+
 ```svelte
 {#snippet children()}
   Hello this is the modal content
@@ -144,7 +149,7 @@ This uses the native dialogue element, so focus will always be inside the modal.
   <button onclick={() => (isOpen = false)}>Ok!</button>
 {/snippet}
 
-<Modal title="Example modal" {children} {footerChildren} />
+<Modal title="Example modal" {children} {footerChildren} position="right" />
 ```
 
 ## Google Doc Scrollyteller
