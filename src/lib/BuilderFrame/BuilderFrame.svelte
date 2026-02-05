@@ -63,8 +63,8 @@
     </div>
     <div
       class="content-area"
-      bind:clientWidth={vizAreaWidth}
-      bind:clientHeight={vizAreaHeight}
+      bind:offsetWidth={vizAreaWidth}
+      bind:offsetHeight={vizAreaHeight}
     >
       <div
         class="resize-frame"
@@ -109,7 +109,7 @@
 
     .tools {
       width: 100%;
-      text-align: center;
+      text-align: left;
       font-size: 0.8em;
       margin-bottom: 0;
       select {
