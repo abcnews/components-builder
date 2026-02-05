@@ -67,9 +67,7 @@
       bind:clientHeight={vizAreaHeight}
     >
       <div
-        class="resize-frame resize-frame--{presetValue === 'auto'
-          ? 'auto'
-          : 'resizey'}"
+        class="resize-frame"
         bind:offsetWidth={vizDimensions[0]}
         bind:offsetHeight={vizDimensions[1]}
         style:width={presetValue === "auto" ? "100%" : `${vizDimensions[0]}px`}
@@ -127,17 +125,15 @@
     }
 
     .content-area {
-      overflow: hidden;
+      overflow: auto;
       display: block;
 
       .resize-frame {
         resize: both;
+        overflow: auto;
         background-color: var(--background);
         border: 1px solid hsl(from var(--border) h s l / 0.2);
         box-shadow: hsl(from var(--border) h s l / 0.1) 0 0 5px;
-      }
-      .resize-frame--resizey {
-        overflow: auto;
       }
     }
   }
