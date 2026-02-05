@@ -29,9 +29,10 @@
     };
   });
 
-  /* Proxy required otherwise Typescript complains */
-  function onCloseTypescriptProxy() {
-    onClose();
+  function onCloseTypescriptProxy(e) {
+    if (e.target === dialogEl) {
+      onClose();
+    }
   }
 </script>
 
