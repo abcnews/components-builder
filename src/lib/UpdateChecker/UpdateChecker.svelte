@@ -1,6 +1,6 @@
 <script lang="ts">
   import Modal from "$lib/Modal/Modal.svelte";
-  import { onMount } from "svelte";
+  import { onMount, untrack } from "svelte";
 
   type NewVersion = {
     newVersion: string;
@@ -12,9 +12,10 @@
     buttonText = "Open new builder",
   }: { overrideNewVersion?: NewVersion; buttonText?: string } = $props();
 
-  let newVersion = $state<NewVersion | undefined>(overrideNewVersion);
-  // svelte-ignore state_referenced_locally
-  let isOpen = $state(!!newVersion);
+  let newVersion = $state<NewVersion | undefined>(
+    untrack(() => overrideNewVersion),
+  );
+  let isOpen = $state(untrack(() => !!newVersion));
 
   /**
    * Check for a new version of the given project
