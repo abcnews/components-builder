@@ -24,7 +24,7 @@
 
   let hasLoaded = $state(false);
   let markers = $state<Marker[]>([]);
-  let mode = $state(Object.keys(prefixes)?.[0]);
+  let mode = $state(untrack(() => Object.keys(prefixes)?.[0]));
 
   /** which button should show the success indicator */
   let successIndicator = $state("");
@@ -33,7 +33,9 @@
     window.location.pathname
       .match(/\/news-projects\/[^/]+\/(\d+\.\d+\.\d+)/)
       ?.slice(1) || [];
-  const localStorageKey = `ABC_NEWS_BUILDER_${projectName.toUpperCase().replace(/-/g, "_")}`;
+  const localStorageKey = $derived(
+    `ABC_NEWS_BUILDER_${projectName.toUpperCase().replace(/-/g, "_")}`,
+  );
 
   /** Load & sanitise markers from localStorage on initial load */
   $effect(() => {
@@ -76,7 +78,7 @@
     }
 
     interval = setInterval(() => {
-      const goodMarkers = (marker) =>
+      const goodMarkers = (marker: Marker) =>
         !marker.deleted || marker.deleted > Date.now() - 5000;
       if (!_markers.every(goodMarkers)) {
         markers = _markers.filter(goodMarkers);
