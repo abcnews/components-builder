@@ -29,7 +29,7 @@
     };
   });
 
-  function onCloseTypescriptProxy(e) {
+  function onCloseBackdrop(e) {
     if (e.target === dialogEl) {
       onClose();
     }
@@ -42,8 +42,8 @@
 <dialog
   bind:this={dialogEl}
   class="modal modal--{position}"
-  onclick={onCloseTypescriptProxy}
-  onclose={onCloseTypescriptProxy}
+  onclick={onCloseBackdrop}
+  onclose={onCloseBackdrop}
 >
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div onclick={(e) => e.stopPropagation()}>
@@ -52,7 +52,7 @@
         <h1>
           {title}
         </h1>
-        <button class="modal-close" onclick={onCloseTypescriptProxy}>
+        <button class="modal-close" onclick={() => onClose()}>
           <X />
         </button>
       </div>
