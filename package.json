@@ -46,6 +46,7 @@
     "@sveltejs/kit": "^2.16.0",
     "@sveltejs/package": "^2.0.0",
     "@sveltejs/vite-plugin-svelte": "^5.0.0",
+    "@types/async": "^3.2.25",
     "@types/node": "^20",
     "prettier": "^3.4.2",
     "prettier-plugin-svelte": "^3.3.3",

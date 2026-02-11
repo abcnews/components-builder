@@ -1,26 +1,39 @@
-<script>
+<script lang="ts">
   import { untrack } from "svelte";
   import JSZip from "jszip";
-  import eachLimit from "async/eachLimit";
+  import { eachLimit } from "async";
   import Modal from "$lib/Modal/Modal.svelte";
-  import saveAs from "./saveAs";
+  import saveAs from "./saveAs.js";
+  import {
+    defaultMarkerNameDefault,
+    prefixesDefault,
+  } from "$lib/shared-defaults.js";
+
+  interface Props {
+    defaultMarkerName: DefaultMarkerNameFunction;
+    prefixes: MarkerPrefixes;
+    onMarker: (marker: string) => string;
+    iframeUrl: string;
+  }
+
+  type PreviewConfig = { name: string; marker: string; markerString: string };
 
   const GENERATOR_URL = "https://fallback-automations-yknow.kyd.au/api";
   const GENERATOR_MAX_PARALLEL = 3;
   const GENERATOR_WIDTH = "1000";
 
   let {
-    defaultMarkerName = () => "Marker",
-    prefixes = {},
+    defaultMarkerName = defaultMarkerNameDefault,
+    prefixes = prefixesDefault,
     // Optional function to process markers
-    onMarker = (str) => str,
+    onMarker = (str: string) => str,
     iframeUrl = "",
-  } = $props();
+  }: Props = $props();
 
   // closed => pasting => preview => generate => done
   let status = $state("closed");
-  let pastedState = $state();
-  let preview = $state([]);
+  let pastedState: string = $state("");
+  let preview: PreviewConfig[] = $state([]);
   let progress = $state(0);
   let error = $state("");
 
@@ -50,9 +63,9 @@
       // pass through schema
       const parsedMarkers = await Promise.all(uniqueMarkers.map(onMarker));
 
-      // generate a friendly name &  reencode markers with hexFlip="none"
+      // generate a friendly name
       preview = await Promise.all(
-        parsedMarkers.map(async (marker) => ({
+        parsedMarkers.map(async (marker: string) => ({
           name: defaultMarkerName(marker),
           marker,
           markerString: "#" + marker,
@@ -61,26 +74,37 @@
     })();
   });
 
-  function doFetch(generatorUrl) {
-    return fetch(generatorUrl).then((response) => {
-      if (response.status !== 200) {
-        return null;
-      }
-      return response.blob();
-    });
+  async function doFetch(generatorUrl: string) {
+    const response = await fetch(generatorUrl);
+    if (response.status !== 200) {
+      return null;
+    }
+    return response.blob();
   }
 
-  async function sleep(seconds) {
+  async function sleep(seconds: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, seconds));
   }
 
-  async function createScreenshots({ preview }) {
+  async function retry<T extends () => Promise<any>>(
+    fn: T,
+    attempt: number = 0,
+  ): Promise<Awaited<ReturnType<T>>> {
+    let result = await fn();
+    if (!result && attempt < 5) {
+      await sleep(1000 * 2 * attempt);
+      return retry(fn, attempt + 1);
+    }
+    return result;
+  }
+
+  async function createScreenshots({ preview }: { preview: PreviewConfig[] }) {
     const zip = new JSZip();
     let completed = 0;
     // Put a little bit in the bar at the start so it's clear what it is.
     progress = 0.5 / preview.length;
     error = "";
-    const imageBlobs = [];
+    const imageBlobs: (Blob | null)[] = [];
     await eachLimit(
       preview,
       GENERATOR_MAX_PARALLEL,
@@ -95,18 +119,8 @@
           }).toString(),
         ].join("?");
 
-        let blob;
-        // retry. It fails sometimes.
-        for (let retry = 0; retry < 5; retry++) {
-          console.log(thisIframeUrl, "attempt ", retry);
-          blob = await doFetch(generatorUrl);
-          if (!blob) {
-            await sleep(1000 * 2 * retry);
-          }
-          if (blob) {
-            break;
-          }
-        }
+        const blob = await retry(() => doFetch(generatorUrl));
+
         completed += 1;
         progress = completed / preview.length;
 
@@ -115,7 +129,7 @@
       },
     );
 
-    const errors = [];
+    const errors: string[] = [];
     imageBlobs.forEach((blob, index) => {
       const filename = `${String(index).padStart(3, "0")}-${preview[index].name}.png`;
       if (blob) {
