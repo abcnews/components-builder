@@ -1,16 +1,16 @@
 <script lang="ts">
+  import {
+    defaultMarkerNameDefault,
+    prefixesDefault,
+  } from "$lib/shared-defaults.js";
   import { onMount, untrack } from "svelte";
   import { slide } from "svelte/transition";
 
   let {
     /** Unique project name used in localStorage (e.g. "elections-federal2025-lower-house")*/
     projectName = "dev",
-    defaultMarkerName = () => "",
-    prefixes = {
-      "Scrolly mark": "#mark",
-      "Scrolly opener": "#scrollytellerNAMEscrolly1",
-      "Standalone graphic": "#graphic",
-    },
+    defaultMarkerName = defaultMarkerNameDefault,
+    prefixes = prefixesDefault,
   } = $props();
 
   type Marker = {

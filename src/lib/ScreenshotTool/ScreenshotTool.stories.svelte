@@ -10,6 +10,7 @@
     tags: ["autodocs"],
     argTypes: {},
     args: {},
+    // @ts-expect-error This is apparently a bug https://github.com/storybookjs/storybook/issues/29951
     decorators: [() => BuilderStyleRoot],
   });
 </script>
@@ -20,7 +21,5 @@
   args={{
     // Prefixes to look for in the pasted document
     prefixes: { Marker: "#mark" },
-    // Do something with the markers before screenshotting (e.g. turn off animations)
-    parseMarker: (markerString) => "markNewMarkerString",
   }}
 />
