@@ -10,6 +10,7 @@
     tags: ["autodocs"],
     argTypes: {},
     args: {},
+    // @ts-expect-error This is apparently a bug https://github.com/storybookjs/storybook/issues/29951
     decorators: [() => BuilderStyleRoot],
   });
 </script>
