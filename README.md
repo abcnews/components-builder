@@ -53,28 +53,45 @@ To tnclude the update checker, use the following code with optional button text:
 
 The screenshot tool allows users to paste an entire article, then extracts all the markers and sends them to a third-party service to screenshot.
 
-For this to work you must set up a standalone page that can display the visualisation that the external service to screenshot, similar to how you would develop an iframe version of the visualisation.
+For this to work you must set up a standalone page that can display the visualisation that the external service can screenshot, similar to how you would develop an iframe version of the visualisation.
 
 Note that the screenshot tool is not fast. We haven't been able to speed up the server side enough to make this a great experience.
 
+The only required prop is a prefixes map. There are defaults for the other properties that attempt to be sensible. They
+will use the screenshots API at https://fallback-automation.vercel.app with sensible viewport sizes for middle ground
+display sizes and attempt to find the graphic at `<builder url>/iframe#<marker data>`.
+
 ```svelte
 <ScreenshotTool
-  defaultMarkerName={() => "My marker"}
   prefixes={{
     "Scrolly mark": "#mark",
     "Scrolly opener": "#scrollytellerNAMEelectionmap1",
     "Inline graphic": "#graphicinline",
   }}
-  iframeUrl={window.location.origin +
-    window.location.pathname.replace("/builder/", "/iframe/")}
 />
 ```
 
-The `defaultMarkerName` Function provides a user-friendly version of the marker for the preview step. This is the same function as the `MarkerAdmin` component.
+The prefixes map describes the different marker types that have been implemented in the app. This is the same object as the `MarkerAdmin` component.
 
-Prefixes correlate to the different marker types that have been implemented in the app. This is the same object as the `MarkerAdmin` component.
+There are additional props to configure how the screenshots are taken:
 
-The iframe URL is the location that the screenshot tool hits to create screenshots. The screenshot tool will pass this iframe config via the hash, e.g. /iframe/#MARKER.
+```svelte
+<ScreenshotTool
+  prefixes={<prefixes map>}
+    screenshotWidth="800"
+    screenshotHeight="600"
+    maxParallelRequests="3"
+    getGraphicLocation={(marker) => new URL(`http://url-to-graphic/${marker.data}`)}
+    getGeneratorRequest={(config) => new Request(`http://screenshots-api-service/?width=${config.width}&height=${config.height}&url=${config.graphicLocation}`)}
+  />
+```
+
+- `screenshotWidth` and `screenshotHeight` control the viewport size used when taking the screenshot.
+- `maxParallelRequests` controlls how many parallel requests are sent to the screenshot service.
+- `getGraphicLocation` is a function that takes a `marker` and returns a URL object for where to see the rendered graphic.
+  - `marker` is `{ name: string; prefix: string; data: string }`. `name` and `prefix` correspond to values in the prefixes map and data is the string following the prefix for the given marker.
+- `getGeneratorRequest` is a function that takes a `config` object and returns a Request object to send to the screenshots API.
+  - `config` is `{graphicLocation: URL; width: number; height: number;}` where graphic location is the value returned from `getGeneratorRequest` and `width` and `height` are the same values passed to the prop as `screenshotWidth` and `screenshotHeight` (or their defaults).
 
 ## Typeahead
 
@@ -83,9 +100,13 @@ The typeahead component uses a native HTML input element, in conjunction with th
 ```svelte
 <Typeahead
   {disabled}
-  values={[{value: 'bne', label: 'Brisbane'},{value: 'syd', label: 'Sydney'}]}
-  value={['bne']}
-  onChange={newValue => console.log(newValue)}
+  values={[
+    { value: "bne", label: "Brisbane" },
+    { value: "syd", label: "Sydney" },
+  ]}
+  value={["bne"]}
+  onChange={(newValue) => console.log(newValue)}
+/>
 ```
 
 ## ContextMenu
