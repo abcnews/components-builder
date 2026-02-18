@@ -2,15 +2,18 @@
 
 A set of common styles and components for creating builders - tools to configure and preview visualisations with a GUI interface.
 
-**These components are not thoroughly tested as a library, and are provided as-is. Please contribute pull requests to fix issues**
+**These components are not thoroughly tested as a library, and are provided as-is. Please contribute pull requests to
+fix issues**
 
-## Global Styles (BuilderStyleRoot)
+## Components
+
+### Global Styles (BuilderStyleRoot)
 
 This project uses global styles in the same way as bootstrap or tailwind. These styles mainly focus on form elements and things you'll likely to hit in a builder.
 
 Wrap your application inside of the BuilderStyleRoot component to make use of these styles. Note that all the components in this repository also depend on these styles.
 
-## BuilderFrame
+### BuilderFrame
 
 A two column frame you can use to scaffold your builder.
 
@@ -35,7 +38,7 @@ A two column frame you can use to scaffold your builder.
 
 ```
 
-## UpdateChecker
+### UpdateChecker
 
 The update checker extracts the current version number from the URL, and recursively checks for new versions, major, minor, and patch. If a new version is found it will show a modal prompting the user to update.
 
@@ -49,7 +52,7 @@ To tnclude the update checker, use the following code with optional button text:
 <UpdateChecker buttonText="Open new builder" />
 ```
 
-## ScreenshotTool (fallback images)
+### ScreenshotTool (fallback images)
 
 The screenshot tool allows users to paste an entire article, then extracts all the markers and sends them to a third-party service to screenshot.
 
@@ -76,7 +79,7 @@ Prefixes correlate to the different marker types that have been implemented in t
 
 The iframe URL is the location that the screenshot tool hits to create screenshots. The screenshot tool will pass this iframe config via the hash, e.g. /iframe/#MARKER.
 
-## Typeahead
+### Typeahead
 
 The typeahead component uses a native HTML input element, in conjunction with the datalist element, to provide native searching and keyboard accessibility. The component implements its own multi-select functionality as that isn't available natively.
 
@@ -88,7 +91,7 @@ The typeahead component uses a native HTML input element, in conjunction with th
   onChange={newValue => console.log(newValue)}
 ```
 
-## ContextMenu
+### ContextMenu
 
 The context menu component uses a native dialog element and provides a number of classes for you to style the contents of your menu. Check the storybook for more examples of these.
 
@@ -128,7 +131,7 @@ The context menu is designed for you to manually handle the isOpen state in your
 </ContextMenu>
 ```
 
-## Modal
+### Modal
 
 The modal component is useful for building more complex tools inside a builder.
 
@@ -152,7 +155,7 @@ Use the `position` prop to control where the modal appears:
 <Modal title="Example modal" {children} {footerChildren} position="right" />
 ```
 
-## Google Doc Scrollyteller
+### Google Doc Scrollyteller
 
 This component lets edits draft stories in Google Docs and preview to scrollyteller in real time. This is useful because multiple people can be editing at once and have a real-time preview, whereas the CMS is single user and can be slow to iterate on.
 
@@ -179,7 +182,7 @@ This component must be set up on its own page, as it has two different routes bu
 
 You must pass in the loadScrollyteller function, as well as your component that implements svelte-scrollyteller. When the Google doc is loaded, your component will be mounted with the relevant markup in-page.
 
-## MarkerAdmin
+### MarkerAdmin
 
 This is a component that streamlines how you handle markers. It includes a copy and paste function as well as the ability to save and load markers from localstorage.
 
@@ -201,13 +204,71 @@ As a prerequisite your builder must store its state in window.location.hash. E.g
 
 Prefixes correlate to the different marker types that have been implemented in the app. Users can choose which type of marker they want to copy. This is the same object as the `ScreenshotTool` component.
 
-## Loader
+### Loader
 
 A fairly straightforward spinner with the text "Loading" underneath. Use it when the user needs to wait for a process to complete. You can adjust the size or text:
 
 ```svelte
 <Loader width="32px" />
 <Loader>Reticulating splines</Loader>
+```
+
+### ItemCollection
+
+A component to help with building editor interfaces for collections of arbitrary objects. For example, a builder tool
+might need to allow the creation of a list of annotations to appear on a chart.
+
+This component expects to be working with some kind of global state object and uses [bound
+properties](https://svelte.dev/docs/svelte/bind) to propagate changes back to the items managed by the collection.
+
+- `collection` is an array of otherwise arbitrary objects that implement the `DeletableType` interface. They must be of
+  uniform type.
+- `current` is the item from the list currently being edited (or `undefined` if there is no item being edited). It should
+  exist in the `collection`.
+- `template` is an object of the same type as the items in the collection which provides defalut values for any new
+  items added to the collection.
+- `itemLabelGetter` is a function which takes an item of the same type as the items in the collection and returns a
+  label to use for that item when it is displayed in the list.
+
+An `EditForm` snippet is required and should render an edit form appropriate for the objects in the collection. The
+edit form will be rendered in place of the collection list when `current` is defined.
+
+```svelte
+<ItemCollection
+  legend="Annotations"
+  template={defaultAnnotation}
+  bind:current={currentAnnotation}
+  bind:collection={allAnnotations}
+  itemLabelGetter={(annotation) => annotation.label}
+>
+  {#snippet EditForm()}
+    <label for="annotation-text">Label</label>
+    <input
+      id="annotation-text"
+      type="text"
+      bind:value={currentAnnotation.label}
+    />
+    <FormActions bind:item={currentAnnotation} />
+  {/snippet}
+</ItemCollection>
+```
+
+This component also contains two additional components only useful when used in conjunction with `ItemCollection`:
+
+- `ItemList` is used to display this list of items in the collection and provides the edit and delete buttons.
+- `FormActions` can be used to easily add close and delete buttons to the bottom of the edit form. It takes the
+  currently edited `item` as a bound property.
+
+### ButtonGroup
+
+A simple component to provide styles for grouped buttons.
+
+```svelte
+<ButtonGroup>
+  <button>One</button>
+  <button>Two</button>
+  <button>Three</button>
+</ButtonGroup>
 ```
 
 ## Developing
