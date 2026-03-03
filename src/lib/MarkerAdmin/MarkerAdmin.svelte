@@ -51,6 +51,7 @@
       return;
     }
     try {
+      console.log("writing localStorage");
       localStorage[localStorageKey] = JSON.stringify({
         version: version,
         lastUpdated: new Date().toISOString(),
@@ -254,9 +255,25 @@
           {/if}
         </td>
         <td class="btn-group">
+          {#if !marker.deleted}
+            <button
+              onclick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (confirm(`Overwrite '${marker.name}'?`)) {
+                  marker.hash = window.location.hash.slice(1);
+                }
+              }}
+              title="Overwrite snapshot with current state"
+              style:height="32px"
+            >
+              {@render saveIcon()}
+            </button>
+          {/if}
           <button
             onclick={(e) => {
               e.preventDefault();
+              e.stopPropagation();
               const newMarkers = [...markers];
               const marker = newMarkers[index];
               if (marker.deleted) {
