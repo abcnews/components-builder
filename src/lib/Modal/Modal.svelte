@@ -5,12 +5,14 @@
   let {
     children,
     footerChildren,
+    titleIcon,
     title = "",
     onClose = () => {},
     position = "centre",
   } = $props<{
-    children?: any;
-    footerChildren?: any;
+    children?: import("svelte").Snippet;
+    footerChildren?: import("svelte").Snippet;
+    titleIcon?: import("svelte").Snippet;
     title?: string;
     onClose?: () => void;
     position?: string;
@@ -29,7 +31,7 @@
     };
   });
 
-  function onCloseBackdrop(e) {
+  function onCloseBackdrop(e: Event) {
     if (e.target === dialogEl) {
       onClose();
     }
@@ -49,6 +51,11 @@
   <div onclick={(e) => e.stopPropagation()}>
     {#if title}
       <div class="modal-title">
+        {#if titleIcon}
+          <div class="modal-title-icon">
+            {@render titleIcon()}
+          </div>
+        {/if}
         <h1>
           {title}
         </h1>
@@ -102,6 +109,12 @@
     padding: 0.5rem 0.5rem 0.5rem 1rem;
     gap: 1rem;
     border-bottom: 1px solid var(--border);
+  }
+  .modal-title-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
   }
   .modal-title h1 {
     font-size: 1rem;

@@ -141,6 +141,8 @@ Use the `position` prop to control where the modal appears:
 - `centre` (default): Centred in the screen with a full dark backdrop.
 - `right`: Aligned to the right, with a gradient backdrop that leaves your viz visible. Especially useful when the modal changes the viz reactively, so you can see the results.
 
+The `titleIcon` snippet slot allows you to provide an icon (or any content) that appears before the title.
+
 ```svelte
 {#snippet children()}
   Hello this is the modal content
@@ -148,8 +150,17 @@ Use the `position` prop to control where the modal appears:
 {#snippet footerChildren()}
   <button onclick={() => (isOpen = false)}>Ok!</button>
 {/snippet}
+{#snippet titleIcon()}
+  <InfoCircle />
+{/snippet}
 
-<Modal title="Example modal" {children} {footerChildren} position="right" />
+<Modal
+  title="Example modal"
+  {children}
+  {footerChildren}
+  {titleIcon}
+  position="right"
+/>
 ```
 
 ## Google Doc Scrollyteller
