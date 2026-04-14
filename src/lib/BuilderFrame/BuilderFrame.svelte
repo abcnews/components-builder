@@ -100,8 +100,6 @@
     min-width: 50%;
     position: relative;
     overflow: hidden;
-    background: var(--background-alt);
-    color: black;
 
     > * {
       margin: 5px;
