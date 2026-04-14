@@ -38,7 +38,7 @@
       .builder-style-root {
         --text: #ccc;
         --text-light: #888;
-        --background: #1a1a1a;
+        --background: #121212;
         --background-alt: #2c2c2f;
         --border: rgba(122, 123, 135, 0.5);
       }
