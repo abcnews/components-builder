@@ -23,3 +23,28 @@
     prefixes: { Marker: "#mark" },
   }}
 />
+
+<Story
+  name="Custom screenshots service"
+  args={{
+    prefixes: { Marker: "#mark" },
+    getGeneratorRequest: (config) => {
+      const { graphicLocation, width, height } = config;
+      const endpoint = new URL("https://screenshotsRus.com");
+      const args = {
+        url: graphicLocation.toString(),
+        width: `${width}`,
+        height: `${height}`,
+        delay: "1000",
+      };
+
+      return new Request(endpoint.toString(), {
+        method: "POST",
+        body: JSON.stringify(args),
+        headers: {
+          "X-API-Key": "<some api key>",
+        },
+      });
+    },
+  }}
+/>
