@@ -4,6 +4,7 @@
   "scripts": {
     "dev": "vite dev",
     "build": "vite build && npm run prepack",
+    "prepublishOnly": "npm run build",
     "preview": "vite preview",
     "prepare": "svelte-kit sync || echo ''",
     "prepack": "svelte-kit sync && svelte-package && publint",
@@ -12,7 +13,8 @@
     "format": "prettier --write .",
     "lint": "prettier --check .",
     "storybook": "storybook dev -p 6006 --ci",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "release": "np"
   },
   "files": [
     "dist",
@@ -48,6 +50,7 @@
     "@sveltejs/vite-plugin-svelte": "^5.0.0",
     "@types/async": "^3.2.25",
     "@types/node": "^20",
+    "np": "^11.2.1",
     "prettier": "^3.4.2",
     "prettier-plugin-svelte": "^3.3.3",
     "publint": "^0.3.2",
@@ -67,5 +70,10 @@
     "bootstrap-icons": "^1.11.3",
     "jszip": "^3.10.1",
     "svelte-bootstrap-icons": "^3.1.2"
+  },
+  "np": {
+    "anyBranch": false,
+    "branch": "main",
+    "tests": false
   }
 }

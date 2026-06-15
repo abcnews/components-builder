@@ -313,16 +313,10 @@ npm run storybook
 
 Everything inside `src/lib` is part of the library, everything inside `src/routes` can be used as a showcase or preview app.
 
-## Building
+## Releasing
 
-To build the library:
-
-```bash
-npm run build
-```
-
-Then publish the new version with:
+To publish a new version of the library to npm, we use `np`:
 
 ```bash
-npm publish
+npm run release
 ```
