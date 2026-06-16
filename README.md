@@ -303,6 +303,26 @@ A simple component to provide styles for grouped buttons.
 </ButtonGroup>
 ```
 
+### Tabs
+
+A component that renders an old-school tabbed interface.
+
+```svelte
+<script lang="ts">
+  import { Tabs } from "@abcnews/components-builder";
+
+  let activeTab = $state("desktop");
+</script>
+
+<Tabs
+  items={[
+    { id: "desktop", label: "Desktop" },
+    { id: "mobile", label: "Mobile" },
+  ]}
+  bind:activeId={activeTab}
+/>
+```
+
 ## Developing
 
 Once you've nstalled dependencies with `npm install`, start a development storybook:
