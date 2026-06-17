@@ -1,35 +1,12 @@
 <script lang="ts">
+  import { onMount } from "svelte";
+
   interface Props {
     /** The visualization snippet to render. */
     Viz?: import("svelte").Snippet;
   }
 
   let { Viz }: Props = $props();
-
-  let vizAreaWidth = $state();
-  let vizAreaHeight = $state();
-
-  let vizDimensions: [number, number] = $state([Infinity, Infinity]);
-  let presetValue: [number, number] | "custom" | "auto" = $state("auto");
-
-  $effect(() => {
-    if (Array.isArray(presetValue)) {
-      vizDimensions = [presetValue[0], presetValue[1]];
-    }
-  });
-
-  $effect(() => {
-    const match = Array.from(commonViewports.values()).find(
-      (d) => d[0] === vizDimensions[0] && d[1] === vizDimensions[1]
-    );
-
-    if (!match) {
-      presetValue =
-        vizAreaWidth === vizDimensions[0] && vizAreaHeight === vizDimensions[1]
-          ? "auto"
-          : "custom";
-    }
-  });
 
   const commonViewports = new Map<string, [number, number]>([
     ["Desktop (large)", [1920, 1080]],
@@ -40,6 +17,61 @@
     ["iPhone 14 Pro Max", [430, 932]],
     ["iPhone SE", [375, 667]],
   ]);
+
+  let vizAreaWidth = $state();
+  let vizAreaHeight = $state();
+
+  let vizDimensions: [number, number] = $state([Infinity, Infinity]);
+  let presetValue: [number, number] | "custom" | "auto" = $state("auto");
+
+  // Persist the viewport dropdown. Because the persisted value doesn't match
+  // the reference in commonViewports we need to find and set the exact
+  // reference again.
+  onMount(() => {
+    try {
+      const stored = localStorage.getItem("ABC_NEWS_BUILDER_VIEWPORT");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          const match = Array.from(commonViewports.values()).find(
+            (d) => d[0] === parsed[0] && d[1] === parsed[1],
+          );
+          presetValue = match || parsed;
+        } else if (parsed === "custom" || parsed === "auto") {
+          presetValue = parsed;
+        }
+      }
+    } catch (e) {}
+  });
+
+  $effect(() => {
+    if (Array.isArray(presetValue)) {
+      vizDimensions = [presetValue[0], presetValue[1]];
+    }
+  });
+
+  $effect(() => {
+    const match = Array.from(commonViewports.values()).find(
+      (d) => d[0] === vizDimensions[0] && d[1] === vizDimensions[1],
+    );
+
+    if (!match) {
+      presetValue =
+        vizAreaWidth === vizDimensions[0] && vizAreaHeight === vizDimensions[1]
+          ? "auto"
+          : "custom";
+    }
+  });
+
+  // Persist presetValue to localStorage on change
+  $effect(() => {
+    if (typeof window !== "undefined" && typeof localStorage !== "undefined") {
+      localStorage.setItem(
+        "ABC_NEWS_BUILDER_VIEWPORT",
+        JSON.stringify(presetValue),
+      );
+    }
+  });
 </script>
 
 <div class="builder-viewport">
