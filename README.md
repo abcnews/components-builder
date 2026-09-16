@@ -303,6 +303,26 @@ A simple component to provide styles for grouped buttons.
 </ButtonGroup>
 ```
 
+### Tabs
+
+A component that renders an old-school tabbed interface.
+
+```svelte
+<script lang="ts">
+  import { Tabs } from "@abcnews/components-builder";
+
+  let activeTab = $state("desktop");
+</script>
+
+<Tabs
+  items={[
+    { id: "desktop", label: "Desktop" },
+    { id: "mobile", label: "Mobile" },
+  ]}
+  bind:activeId={activeTab}
+/>
+```
+
 ## Developing
 
 Once you've nstalled dependencies with `npm install`, start a development storybook:
@@ -313,16 +333,10 @@ npm run storybook
 
 Everything inside `src/lib` is part of the library, everything inside `src/routes` can be used as a showcase or preview app.
 
-## Building
+## Releasing
 
-To build the library:
-
-```bash
-npm run build
-```
-
-Then publish the new version with:
+To publish a new version of the library to npm, we use `np`:
 
 ```bash
-npm publish
+npm run release
 ```

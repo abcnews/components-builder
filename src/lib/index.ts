@@ -11,3 +11,5 @@ export { default as MarkerAdmin } from "./MarkerAdmin/MarkerAdmin.svelte";
 export { default as Loader } from "./Loader/Loader.svelte";
 export { default as ItemCollection } from "./ItemCollection/ItemCollection.svelte";
 export { default as FormActions } from "./ItemCollection/FormActions.svelte";
+export { default as BuilderViewport } from "./BuilderViewport/BuilderViewport.svelte";
+export { default as Tabs } from "./Tabs/Tabs.svelte";

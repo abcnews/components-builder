@@ -51,7 +51,6 @@
       return;
     }
     try {
-      console.log("writing localStorage");
       localStorage[localStorageKey] = JSON.stringify({
         version: version,
         lastUpdated: new Date().toISOString(),
