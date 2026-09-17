@@ -65,7 +65,6 @@
   ],
   "dependencies": {
     "@abcnews/alternating-case-to-object": "^3.2.0",
-    "@abcnews/svelte-scrollyteller": "github:abcnews/svelte-scrollyteller#feature/future-news",
     "async": "^3.2.6",
     "bootstrap-icons": "^1.11.3",
     "jszip": "^3.10.1",

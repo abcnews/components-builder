@@ -2,7 +2,6 @@
 export { default as BuilderStyleRoot } from "./BuilderStyleRoot/BuilderStyleRoot.svelte";
 export { default as BuilderFrame } from "./BuilderFrame/BuilderFrame.svelte";
 export { default as ContextMenu } from "./ContextMenu/ContextMenu.svelte";
-export { default as GoogleDocScrollyteller } from "./GoogleDocScrollyteller/GoogleDocScrollyteller.svelte";
 export { default as Modal } from "./Modal/Modal.svelte";
 export { default as ScreenshotTool } from "./ScreenshotTool/ScreenshotTool.svelte";
 export { default as Typeahead } from "./Typeahead/Typeahead.svelte";
