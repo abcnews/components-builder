@@ -12,6 +12,7 @@
     argTypes: {},
     args: {
       legend: "A collection of editable and deletable items",
+      reorderable: false,
     },
     // @ts-expect-error This is apparently a bug https://github.com/storybookjs/storybook/issues/29951
     decorators: [() => BuilderStyleRoot],
@@ -38,6 +39,7 @@
       template={{ name: "Item name" }}
       legend={args.legend || "Legend"}
       itemLabelGetter={(item) => item.name}
+      reorderable={args.reorderable}
     >
       {#snippet EditForm()}
         {#if current}
