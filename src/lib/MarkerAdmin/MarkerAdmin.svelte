@@ -145,10 +145,17 @@
     onanimationend={() => {
       successIndicator = "";
     }}
-    onclick={(e) => {
+    onclick={async (e) => {
       e.preventDefault();
       const hash = window.location.hash.slice(1);
-      navigator.clipboard.writeText(prefixes[mode] + hash);
+      const textToCopy = prefixes[mode] + hash;
+
+      try {
+        await navigator.clipboard.writeText(textToCopy);
+      } catch {
+        alert(textToCopy);
+      }
+
       successIndicator = "copy";
     }}
   >
@@ -163,12 +170,12 @@
     onclick={async (e) => {
       e.preventDefault();
 
-      let text: string | null = await navigator.clipboard
-        .readText()
-        .catch((e) => {
-          console.error("Could not read clipboard");
-          return null;
-        });
+      let text: string | null = null;
+      try {
+        text = await navigator.clipboard.readText();
+      } catch {
+        // Clipboard API unavailable or permission denied
+      }
 
       if (!text) {
         text = prompt("Paste a marker here to import its configuration");
