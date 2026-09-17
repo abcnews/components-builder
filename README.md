@@ -187,33 +187,6 @@ The `titleIcon` snippet slot allows you to provide an icon (or any content) that
 />
 ```
 
-### Google Doc Scrollyteller
-
-This component lets edits draft stories in Google Docs and preview to scrollyteller in real time. This is useful because multiple people can be editing at once and have a real-time preview, whereas the CMS is single user and can be slow to iterate on.
-
-This component must be set up on its own page, as it has two different routes built into it. An example implementation follows:
-
-```svelte
-<script>
-  import {
-    BuilderStyleRoot,
-    GoogleDocScrollyteller,
-  } from "@abcnews/components-builder";
-  import { loadScrollyteller } from "@abcnews/svelte-scrollyteller";
-  import MyScrollyteller from "../components/MyScrollyteller.svelte";
-</script>
-
-<BuilderStyleRoot>
-  <GoogleDocScrollyteller
-    name="electionmap"
-    {loadScrollyteller}
-    ScrollytellerRoot={MyScrollyteller}
-  />
-</BuilderStyleRoot>
-```
-
-You must pass in the loadScrollyteller function, as well as your component that implements svelte-scrollyteller. When the Google doc is loaded, your component will be mounted with the relevant markup in-page.
-
 ### MarkerAdmin
 
 This is a component that streamlines how you handle markers. It includes a copy and paste function as well as the ability to save and load markers from localstorage.
