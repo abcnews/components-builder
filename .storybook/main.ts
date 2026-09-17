@@ -5,16 +5,7 @@ const config: StorybookConfig = {
     "../src/**/*.mdx",
     "../src/**/*.stories.@(js|ts|svelte)"
   ],
-  "addons": [
-    {
-      "name": "@storybook/addon-essentials",
-      "options": {
-        "docs": false
-      }
-    },
-    "@storybook/addon-svelte-csf",
-    "@storybook/addon-interactions"
-  ],
+  "addons": ["@storybook/addon-svelte-csf"],
   "framework": {
     "name": "@storybook/sveltekit",
     "options": {}
