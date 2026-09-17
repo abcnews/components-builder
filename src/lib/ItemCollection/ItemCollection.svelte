@@ -10,6 +10,7 @@
     legend: string;
     itemLabelGetter(item: Item): string;
     EditForm: Snippet<[Item]>;
+    reorderable?: boolean;
   }
 
   let {
@@ -19,6 +20,7 @@
     template,
     itemLabelGetter,
     EditForm,
+    reorderable = false,
   }: Props = $props();
 
   const add = () => {
@@ -37,6 +39,7 @@
       bind:items={collection}
       edit={(item) => (current = item)}
       getLabel={itemLabelGetter}
+      {reorderable}
     />
   {/if}
 </fieldset>
