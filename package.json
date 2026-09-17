@@ -1,6 +1,6 @@
 {
   "name": "@abcnews/components-builder",
-  "version": "0.0.24",
+  "version": "1.0.0",
   "scripts": {
     "dev": "vite dev",
     "build": "vite build && npm run prepack",
