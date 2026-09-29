@@ -296,6 +296,24 @@ A component that renders an old-school tabbed interface.
 />
 ```
 
+### FilePicker
+
+A component that lets the user pick a file. Optionally reads the file contents and binds to a string.
+
+```svelte
+<FilePicker
+  types=".json,.geojson,.txt"
+  bind:value={geojson}
+  readAsText={true}
+/>
+```
+
+or
+
+```svelte
+<FilePicker types=".json,.geojson,.txt" bind:file={fileReference} />
+```
+
 ## Developing
 
 Once you've nstalled dependencies with `npm install`, start a development storybook:
