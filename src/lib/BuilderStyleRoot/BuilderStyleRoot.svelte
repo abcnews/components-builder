@@ -21,6 +21,7 @@
       --background: #fff;
       --border: rgba(122, 123, 135, 0.5);
       --background-alt: #f2f4f5;
+      --accent-color: AccentColor;
 
       color: var(--text);
       background-color: var(--background);
