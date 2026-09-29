@@ -301,6 +301,7 @@ A component that renders an old-school tabbed interface.
 A component that lets the user pick a file. Optionally reads the file contents and binds to a string.
 
 ```svelte
+import {FilePicker} from "@abcnews/components-builder";
 <FilePicker
   types=".json,.geojson,.txt"
   bind:value={geojson}
