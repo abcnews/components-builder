@@ -93,6 +93,61 @@
     }, 3000);
   });
 
+  /* ---------------------------------------------------------------------------
+   * Drag to reorder. Uses native HTML5 drag & drop.
+   * `dropIndex` is an insertion position (0..markers.length), i.e. the gap
+   * between rows where the dragged marker would land.
+   */
+  let dragIndex = $state<number | null>(null);
+  let dropIndex = $state<number | null>(null);
+
+  /** Dropping into the gap directly above or below the dragged row is a no-op */
+  const isNoopDrop = $derived(
+    dragIndex === null ||
+      dropIndex === null ||
+      dropIndex === dragIndex ||
+      dropIndex === dragIndex + 1,
+  );
+
+  function resetDrag() {
+    dragIndex = null;
+    dropIndex = null;
+  }
+
+  function onDragStart(e: DragEvent, index: number) {
+    dragIndex = index;
+    if (e.dataTransfer) {
+      e.dataTransfer.effectAllowed = "move";
+    }
+  }
+
+  function onDragOver(e: DragEvent, index: number) {
+    if (dragIndex === null) {
+      return; // not one of our drags (e.g. a file or text from elsewhere)
+    }
+    e.preventDefault(); // required to allow dropping
+    if (e.dataTransfer) {
+      e.dataTransfer.dropEffect = "move";
+    }
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    const isBottomHalf = e.clientY > rect.top + rect.height / 2;
+    dropIndex = index + (isBottomHalf ? 1 : 0);
+  }
+
+  function onDrop(e: DragEvent) {
+    if (dragIndex === null) {
+      return;
+    }
+    e.preventDefault();
+    if (!isNoopDrop && dropIndex !== null) {
+      // removing the dragged item shifts everything below it up by one
+      const target = dropIndex > dragIndex ? dropIndex - 1 : dropIndex;
+      const [moved] = markers.splice(dragIndex, 1);
+      markers.splice(target, 0, moved);
+    }
+    resetDrag();
+  }
+
   onMount(function load() {
     try {
       const storage = localStorage[localStorageKey];
@@ -240,13 +295,28 @@
   onmouseleave={() => {
     isHovering = false;
   }}
+  ondragleave={(e) => {
+    if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+      dropIndex = null;
+    }
+  }}
 >
   <tbody>
-    {#each markers as marker, index}
+    {#each markers as marker, index (marker)}
       <tr
         class="row"
         class:row--deleted={marker.deleted}
+        class:row--dragging={dragIndex === index}
+        class:row--drop-before={!isNoopDrop && dropIndex === index}
+        class:row--drop-after={!isNoopDrop &&
+          index === markers.length - 1 &&
+          dropIndex === markers.length}
+        draggable={!marker.deleted}
         transition:slide
+        ondragstart={(e) => onDragStart(e, index)}
+        ondragover={(e) => onDragOver(e, index)}
+        ondrop={onDrop}
+        ondragend={resetDrag}
         onclick={(e) =>
           //@ts-ignore
           e.target?.querySelector("a")?.click()}
@@ -255,7 +325,8 @@
           {#if marker.deleted}
             {marker.name}
           {:else}
-            <a href={`#${marker.hash}`}>
+            <!-- draggable=false so the row, not the link, is the drag source -->
+            <a href={`#${marker.hash}`} draggable="false">
               {marker.name}
             </a>
           {/if}
@@ -357,6 +428,16 @@
         background: Highlight;
         color: HighlightText;
       }
+    }
+    .row--dragging {
+      opacity: 0.4;
+    }
+    /* inset shadows so the indicator doesn't shift the layout */
+    .row--drop-before {
+      box-shadow: inset 0 2px 0 0 Highlight;
+    }
+    .row--drop-after {
+      box-shadow: inset 0 -2px 0 0 Highlight;
     }
     .row a {
       text-decoration: none;
