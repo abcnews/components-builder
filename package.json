@@ -64,6 +64,7 @@
     "async": "^3.2.6",
     "bootstrap-icons": "^1.11.3",
     "jszip": "^3.10.1",
+    "release-it": "^21.0.3",
     "svelte-bootstrap-icons": "^3.1.2"
   },
   "np": {
