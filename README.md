@@ -315,6 +315,27 @@ or
 <FilePicker types=".json,.geojson,.txt" bind:file={fileReference} />
 ```
 
+### InputDistribution
+
+A histogram with draggable handles and number inputs for selecting a numeric range. `min` and `max` are bindable.
+
+```svelte
+<InputDistribution values={myNumbers} bind:min bind:max />
+```
+
+For large datasets, pass a sample of the values. Bars can be coloured by value by passing a function to `color`, which receives the midpoint of each bin and returns a CSS colour:
+
+```svelte
+<InputDistribution
+  values={myNumbers}
+  color={(value) => palette(value)}
+  bind:min
+  bind:max
+/>
+```
+
+Other optional props are `bins`, `scale` (`sqrt` or `linear`), `height`, `step`, `formatValue`, `minLabel`, `maxLabel`, `showInputs` and `disabled`.
+
 ## Developing
 
 Once you've nstalled dependencies with `npm install`, start a development storybook:
