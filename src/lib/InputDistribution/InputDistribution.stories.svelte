@@ -4,8 +4,7 @@
   import BuilderStyleRoot from "$lib/BuilderStyleRoot/BuilderStyleRoot.svelte";
 
   /**
-   * Deterministic sample data: a sine wave mapped to 0..max.
-   * `skew` > 1 piles values towards zero (useful for sqrt vs linear scale).
+   * Deterministic sample data: just a lil sine wave
    */
   const wave = (n: number, max = 100, skew = 1) =>
     Array.from({ length: n }, (_, i) => max * ((1 + Math.sin(i)) / 2) ** skew);
