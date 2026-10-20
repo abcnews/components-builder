@@ -10,9 +10,9 @@
    *
    * Requires `layercake` and `d3-scale` as dependencies.
    */
-  import { onDestroy } from "svelte";
   import { LayerCake, Svg, bin } from "layercake";
   import { scaleLinear, scaleSqrt } from "d3-scale";
+  import type { ScaleContinuousNumeric } from "d3-scale";
 
   interface Bin {
     x0: number;
@@ -67,8 +67,27 @@
 
   const uid = $props.id();
 
-  /** Must match the horizontal padding passed to LayerCake. */
+  /** Must match the padding passed to LayerCake. */
   const PADDING = { top: 5, right: 10, bottom: 0, left: 10 };
+
+  type HandleType = "min" | "max";
+  type XScale = ScaleContinuousNumeric<number, number>;
+
+  interface HandleSpec {
+    type: HandleType;
+    label: string;
+    now: number;
+    lo: number;
+    hi: number;
+  }
+
+  /** The subset of LayerCake's `children` snippet props used here. */
+  interface CakeProps {
+    data: Bin[];
+    xScale: XScale;
+    yScale: XScale;
+    height: number;
+  }
 
   let finiteValues = $derived(values.filter((v) => Number.isFinite(v)));
 
@@ -78,7 +97,6 @@
     }) as unknown as Bin[],
   );
 
-  // `reduce` rather than `Math.min(...values)`, which overflows the call stack on large arrays.
   let dataDomain = $derived.by<[number, number]>(() => {
     if (finiteValues.length === 0) return [0, 0];
     return finiteValues.reduce<[number, number]>(
@@ -90,7 +108,6 @@
     );
   });
 
-  /** Rounds to a "nice" power of ten a hundredth of the range, so 0–1 data isn't snapped to integers. */
   let effectiveStep = $derived.by(() => {
     if (step) return step;
     const range = dataDomain[1] - dataDomain[0];
@@ -101,6 +118,23 @@
   let effMin = $derived(min ?? dataDomain[0]);
   let effMax = $derived(max ?? dataDomain[1]);
 
+  let handles = $derived<HandleSpec[]>([
+    {
+      type: "min",
+      label: minLabel,
+      now: effMin,
+      lo: dataDomain[0],
+      hi: effMax,
+    },
+    {
+      type: "max",
+      label: maxLabel,
+      now: effMax,
+      lo: effMin,
+      hi: dataDomain[1],
+    },
+  ]);
+
   const clamp = (value: number, lo: number, hi: number) =>
     Math.max(lo, Math.min(hi, value));
   const snap = (value: number) =>
@@ -108,38 +142,69 @@
 
   const barColor = (d: Bin) =>
     typeof color === "function" ? color((d.x0 + d.x1) / 2) : color;
-  /** Colour-by-value needs less transparency for the colours to read accurately. */
+
   let barOpacity = $derived(typeof color === "function" ? 0.85 : 0.5);
 
-  const getWidth = (d: Bin, xScale: any) =>
+  const getWidth = (d: Bin, xScale: XScale) =>
     Math.max(0, xScale(d.x1) - xScale(d.x0) - 1); // 1px gap
 
   /** Ensures small non-zero bins keep a minimum visible height. */
-  const getHeight = (d: Bin, yScale: any, totalHeight: number) =>
+  const getHeight = (d: Bin, yScale: XScale, totalHeight: number) =>
     d.length === 0 ? 0 : Math.max(2, totalHeight - yScale(d.length));
 
-  type HandleType = "min" | "max";
-
-  /** The subset of LayerCake's `children` snippet props used here. */
-  interface CakeProps {
-    data: Bin[];
-    xScale: any;
-    yScale: any;
-    height: number;
+  function setBound(type: HandleType, value: number) {
+    if (type === "min") min = value;
+    else max = value;
   }
 
+  // ---------------------------------------------------------------------------
+  // Dragging
+  //
+  // Pointer listeners live on <svelte:window> (see markup), so Svelte attaches
+  // and removes them for us and handles SSR. They are no-ops unless `dragging`
+  // is set.
+  // ---------------------------------------------------------------------------
+
   let container = $state<HTMLElement>();
-  let dragging = $state<HandleType | null>(null);
-  let currentXScale: any;
+
+  /**
+   * `"both"` means the handles overlap (min === max) and the pointer went down
+   * on the pair. We pick which one to move from the first drag direction, so
+   * the range can always be re-opened.
+   */
+  let dragging = $state<HandleType | "both" | null>(null);
+
+  /** Captured at drag start; not rendered, so no need for reactivity. */
+  let currentXScale: XScale | undefined;
+
+  function startDragging(e: PointerEvent, type: HandleType, xScale: XScale) {
+    if (disabled) return;
+    e.preventDefault();
+    dragging = effMin === effMax ? "both" : type;
+    currentXScale = xScale;
+  }
+
+  function stopDragging() {
+    dragging = null;
+  }
 
   function onPointerMove(e: PointerEvent) {
     if (!dragging || !container || !currentXScale) return;
 
     const rect = container.getBoundingClientRect();
     const x = e.clientX - rect.left - container.clientLeft - PADDING.left;
-    const value = snap(
-      clamp(currentXScale.invert(x), dataDomain[0], dataDomain[1]),
+    // Snap first, then clamp, so the value never leaves the data extent.
+    const value = clamp(
+      snap(currentXScale.invert(x)),
+      dataDomain[0],
+      dataDomain[1],
     );
+
+    if (dragging === "both") {
+      if (value < effMin) dragging = "min";
+      else if (value > effMax) dragging = "max";
+      else return;
+    }
 
     if (dragging === "min") {
       min = Math.min(value, effMax);
@@ -148,48 +213,69 @@
     }
   }
 
-  function stopDragging() {
-    dragging = null;
-    window.removeEventListener("pointermove", onPointerMove);
-    window.removeEventListener("pointerup", stopDragging);
-    window.removeEventListener("pointercancel", stopDragging);
-  }
-
-  function startDragging(e: PointerEvent, type: HandleType, xScale: any) {
-    if (disabled) return;
-    e.preventDefault();
-    dragging = type;
-    currentXScale = xScale;
-    window.addEventListener("pointermove", onPointerMove);
-    window.addEventListener("pointerup", stopDragging);
-    window.addEventListener("pointercancel", stopDragging);
-  }
-
-  onDestroy(() => {
-    if (typeof window !== "undefined") stopDragging();
-  });
+  // ---------------------------------------------------------------------------
+  // Keyboard
+  // ---------------------------------------------------------------------------
 
   function onHandleKeyDown(e: KeyboardEvent, type: HandleType) {
     if (disabled) return;
-    const direction =
-      e.key === "ArrowLeft" || e.key === "ArrowDown"
-        ? -1
-        : e.key === "ArrowRight" || e.key === "ArrowUp"
-          ? 1
-          : 0;
-    if (!direction) return;
+
+    const current = type === "min" ? effMin : effMax;
+    const lo = type === "min" ? dataDomain[0] : effMin;
+    const hi = type === "min" ? effMax : dataDomain[1];
+    const unit = effectiveStep * (e.shiftKey ? 10 : 1);
+
+    let next: number;
+    switch (e.key) {
+      case "ArrowLeft":
+      case "ArrowDown":
+        next = current - unit;
+        break;
+      case "ArrowRight":
+      case "ArrowUp":
+        next = current + unit;
+        break;
+      case "PageDown":
+        next = current - effectiveStep * 10;
+        break;
+      case "PageUp":
+        next = current + effectiveStep * 10;
+        break;
+      case "Home":
+        next = lo;
+        break;
+      case "End":
+        next = hi;
+        break;
+      default:
+        return;
+    }
 
     e.preventDefault();
-    const delta = direction * effectiveStep * (e.shiftKey ? 10 : 1);
-    if (type === "min") {
-      min = snap(clamp(effMin + delta, dataDomain[0], effMax));
-    } else {
-      max = snap(clamp(effMax + delta, effMin, dataDomain[1]));
-    }
+    setBound(type, clamp(snap(next), lo, hi));
+  }
+
+  // ---------------------------------------------------------------------------
+  // Number inputs
+  //
+  // Values outside the data extent are allowed (the data may be a sample), but
+  // min can never exceed max. Runs on `change` so typing isn't interrupted.
+  // ---------------------------------------------------------------------------
+
+  function normaliseInputs(changed: HandleType) {
+    if (min === undefined || max === undefined || min <= max) return;
+    if (changed === "min") min = max;
+    else max = min;
   }
 </script>
 
-<div class="distribution-container" class:disabled style="touch-action: none">
+<svelte:window
+  onpointermove={onPointerMove}
+  onpointerup={stopDragging}
+  onpointercancel={stopDragging}
+/>
+
+<div class="distribution-container" class:disabled>
   <div class="chart-wrapper" bind:this={container} style:height="{height}px">
     {#if finiteValues.length > 0}
       <LayerCake
@@ -209,11 +295,12 @@
           <Svg>
             <g class="bars">
               {#each cakeData as d (d.x0)}
+                {@const barHeight = getHeight(d, yScale, chartHeight)}
                 <rect
                   x={xScale(d.x0)}
-                  y={chartHeight - getHeight(d, yScale, chartHeight)}
+                  y={chartHeight - barHeight}
                   width={getWidth(d, xScale)}
-                  height={getHeight(d, yScale, chartHeight)}
+                  height={barHeight}
                   fill={barColor(d)}
                   fill-opacity={barOpacity}
                 />
@@ -231,7 +318,8 @@
               fill-opacity="0.1"
             />
 
-            {#each [{ type: "min", x: x1, label: minLabel, now: effMin, lo: dataDomain[0], hi: effMax }, { type: "max", x: x2, label: maxLabel, now: effMax, lo: effMin, hi: dataDomain[1] }] as h (h.type)}
+            {#each handles as h (h.type)}
+              {@const hx = xScale(h.now)}
               <g
                 class="handle-group"
                 class:active={dragging === h.type}
@@ -243,22 +331,21 @@
                 aria-valuemin={h.lo}
                 aria-valuemax={h.hi}
                 aria-valuetext={formatValue(h.now)}
-                onpointerdown={(e) =>
-                  startDragging(e, h.type as HandleType, xScale)}
-                onkeydown={(e) => onHandleKeyDown(e, h.type as HandleType)}
+                onpointerdown={(e) => startDragging(e, h.type, xScale)}
+                onkeydown={(e) => onHandleKeyDown(e, h.type)}
               >
                 <title>{h.label}: {formatValue(h.now)}</title>
                 <line
-                  x1={h.x}
+                  x1={hx}
                   y1="0"
-                  x2={h.x}
+                  x2={hx}
                   y2={chartHeight}
                   class="handle-line"
                 />
                 <line
-                  x1={h.x}
+                  x1={hx}
                   y1="0"
-                  x2={h.x}
+                  x2={hx}
                   y2={chartHeight}
                   class="hit-area"
                 />
@@ -280,6 +367,7 @@
           id="{uid}-min"
           type="number"
           bind:value={min}
+          onchange={() => normaliseInputs("min")}
           step="any"
           {disabled}
         />
@@ -290,6 +378,7 @@
           id="{uid}-max"
           type="number"
           bind:value={max}
+          onchange={() => normaliseInputs("max")}
           step="any"
           {disabled}
         />
@@ -316,6 +405,8 @@
     overflow: hidden;
     padding-bottom: 5px;
     box-sizing: border-box;
+    /* Only the chart blocks touch scrolling, not the inputs below it. */
+    touch-action: none;
   }
   .no-data {
     height: 100%;

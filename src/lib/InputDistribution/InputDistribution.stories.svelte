@@ -1,49 +1,19 @@
 <script module>
   import { defineMeta } from "@storybook/addon-svelte-csf";
   import InputDistribution from "./InputDistribution.svelte";
-  import { scaleLinear } from "d3-scale";
   import BuilderStyleRoot from "$lib/BuilderStyleRoot/BuilderStyleRoot.svelte";
 
-  /** Small seeded PRNG so stories render identically every time. */
-  function mulberry32(seed: number) {
-    return () => {
-      seed |= 0;
-      seed = (seed + 0x6d2b79f5) | 0;
-      let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
-      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-    };
-  }
+  /**
+   * Deterministic sample data: a sine wave mapped to 0..max.
+   * `skew` > 1 piles values towards zero (useful for sqrt vs linear scale).
+   */
+  const wave = (n: number, max = 100, skew = 1) =>
+    Array.from({ length: n }, (_, i) => max * ((1 + Math.sin(i)) / 2) ** skew);
 
-  /** Box–Muller normal distribution. */
-  function normal(n: number, mean: number, sd: number, seed: number) {
-    const rand = mulberry32(seed);
-    return Array.from({ length: n }, () => {
-      const u = 1 - rand();
-      const v = rand();
-      return (
-        mean + sd * Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v)
-      );
-    });
-  }
-
-  const normalValues = normal(5000, 50, 15, 1);
-  const unitValues = normal(3000, 0.5, 0.15, 2).map((v) =>
-    Math.min(1, Math.max(0, v)),
-  );
-  // Heavily right-skewed, so the sqrt vs linear difference is obvious
-  const skewedValues = (() => {
-    const rand = mulberry32(3);
-    return Array.from({ length: 5000 }, () => -Math.log(1 - rand()) * 20);
-  })();
-  const bimodalValues = [...normal(2500, 25, 6, 4), ...normal(2500, 75, 8, 5)];
-  const largeValues = normal(500_000, 0, 1000, 6);
-
-  /** Multi-stop colour scale used by the "Coloured by value" story. */
-  const palette = scaleLinear<string>()
-    .domain([0, 33, 66, 100])
-    .range(["#fde725", "#35b779", "#31688e", "#440154"])
-    .clamp(true);
+  const values = wave(5000);
+  const unitValues = wave(3000, 1);
+  const skewedValues = wave(5000, 100, 3);
+  const largeValues = wave(500_000);
 
   const { Story } = defineMeta({
     title: "Example/InputDistribution",
@@ -62,7 +32,7 @@
       disabled: { control: "boolean" },
     },
     args: {
-      values: normalValues,
+      values,
       bins: 100,
       scale: "sqrt",
       height: 60,
@@ -75,36 +45,14 @@
 </script>
 
 <script lang="ts">
-  // `min` and `max` are bindable, and Storybook args don't write back,
-  // so each interactive story keeps its own local state.
-  let primaryMin = $state<number | undefined>();
-  let primaryMax = $state<number | undefined>();
-
-  let selectedMin = $state<number | undefined>(40);
-  let selectedMax = $state<number | undefined>(65);
-
-  let unitMin = $state<number | undefined>(0.25);
-  let unitMax = $state<number | undefined>(0.75);
-
-  let skewMin = $state<number | undefined>(10);
-  let skewMax = $state<number | undefined>(60);
-
-  let bimodalMin = $state<number | undefined>(10);
-  let bimodalMax = $state<number | undefined>(40);
-
-  let percentMin = $state<number | undefined>(0.2);
-  let percentMax = $state<number | undefined>(0.8);
-
-  let largeMin = $state<number | undefined>(-500);
-  let largeMax = $state<number | undefined>(500);
-
+  // `min` and `max` are bindable and Storybook args don't write back,
+  // so stories keep local state. Stories with similar data share a pair.
   let emptyMin = $state<number | undefined>();
   let emptyMax = $state<number | undefined>();
-
-  let multiAMin = $state<number | undefined>(30);
-  let multiAMax = $state<number | undefined>(60);
-  let multiBMin = $state<number | undefined>(0.1);
-  let multiBMax = $state<number | undefined>(0.4);
+  let rangeMin = $state<number | undefined>(40);
+  let rangeMax = $state<number | undefined>(65);
+  let unitMin = $state<number | undefined>(0.25);
+  let unitMax = $state<number | undefined>(0.75);
 </script>
 
 {#snippet readout(min: number | undefined, max: number | undefined)}
@@ -118,12 +66,8 @@
 <Story name="Primary">
   {#snippet template(args)}
     <div style="max-width: 420px">
-      <InputDistribution
-        {...args}
-        bind:min={primaryMin}
-        bind:max={primaryMax}
-      />
-      {@render readout(primaryMin, primaryMax)}
+      <InputDistribution {...args} bind:min={emptyMin} bind:max={emptyMax} />
+      {@render readout(emptyMin, emptyMax)}
     </div>
   {/snippet}
 </Story>
@@ -131,17 +75,13 @@
 <Story name="Preselected range">
   {#snippet template(args)}
     <div style="max-width: 420px">
-      <InputDistribution
-        {...args}
-        bind:min={selectedMin}
-        bind:max={selectedMax}
-      />
-      {@render readout(selectedMin, selectedMax)}
+      <InputDistribution {...args} bind:min={rangeMin} bind:max={rangeMax} />
+      {@render readout(rangeMin, rangeMax)}
     </div>
   {/snippet}
 </Story>
 
-<!-- Exercises the default step logic, which should snap to 0.01 rather than integers -->
+<!-- Default step should snap to 0.01 rather than integers -->
 <Story name="Zero to one data" args={{ values: unitValues }}>
   {#snippet template(args)}
     <div style="max-width: 420px">
@@ -152,58 +92,35 @@
 </Story>
 
 <Story
-  name="Skewed data (sqrt scale)"
+  name="Skewed (sqrt scale)"
   args={{ values: skewedValues, scale: "sqrt" }}
 >
   {#snippet template(args)}
     <div style="max-width: 420px">
-      <InputDistribution {...args} bind:min={skewMin} bind:max={skewMax} />
-      {@render readout(skewMin, skewMax)}
+      <InputDistribution {...args} bind:min={rangeMin} bind:max={rangeMax} />
     </div>
   {/snippet}
 </Story>
 
 <Story
-  name="Skewed data (linear scale)"
+  name="Skewed (linear scale)"
   args={{ values: skewedValues, scale: "linear" }}
 >
   {#snippet template(args)}
     <div style="max-width: 420px">
-      <InputDistribution {...args} bind:min={skewMin} bind:max={skewMax} />
-      {@render readout(skewMin, skewMax)}
+      <InputDistribution {...args} bind:min={rangeMin} bind:max={rangeMax} />
     </div>
   {/snippet}
 </Story>
 
-<Story name="Bimodal data" args={{ values: bimodalValues, height: 90 }}>
-  {#snippet template(args)}
-    <div style="max-width: 420px">
-      <InputDistribution
-        {...args}
-        bind:min={bimodalMin}
-        bind:max={bimodalMax}
-      />
-      {@render readout(bimodalMin, bimodalMax)}
-    </div>
-  {/snippet}
-</Story>
-
-<!-- Each bar is coloured from its bin midpoint, e.g. to preview a colour scale over the data -->
+<!-- Each bar is coloured from its bin midpoint -->
 <Story
   name="Coloured by value"
-  args={{
-    values: normalValues,
-    color: (value: number) => palette(value),
-  }}
+  args={{ color: (value: number) => `hsl(${value * 2.4}, 70%, 50%)` }}
 >
   {#snippet template(args)}
     <div style="max-width: 420px">
-      <InputDistribution
-        {...args}
-        bind:min={selectedMin}
-        bind:max={selectedMax}
-      />
-      {@render readout(selectedMin, selectedMax)}
+      <InputDistribution {...args} bind:min={rangeMin} bind:max={rangeMax} />
     </div>
   {/snippet}
 </Story>
@@ -219,33 +136,8 @@
 >
   {#snippet template(args)}
     <div style="max-width: 420px">
-      <InputDistribution
-        {...args}
-        bind:min={percentMin}
-        bind:max={percentMax}
-      />
-      {@render readout(percentMin, percentMax)}
-      <p style="font-size: 0.85em; opacity: 0.7;">
-        Hover or focus a handle for the formatted tooltip, and check the
-        slider's
-        <code>aria-valuetext</code>.
-      </p>
-    </div>
-  {/snippet}
-</Story>
-
-<Story name="Custom step" args={{ values: normalValues, step: 5 }}>
-  {#snippet template(args)}
-    <div style="max-width: 420px">
-      <InputDistribution
-        {...args}
-        bind:min={selectedMin}
-        bind:max={selectedMax}
-      />
-      {@render readout(selectedMin, selectedMax)}
-      <p style="font-size: 0.85em; opacity: 0.7;">
-        Drag and arrow keys snap to multiples of 5.
-      </p>
+      <InputDistribution {...args} bind:min={unitMin} bind:max={unitMax} />
+      {@render readout(unitMin, unitMax)}
     </div>
   {/snippet}
 </Story>
@@ -254,21 +146,7 @@
 <Story name="Large dataset (500k values)" args={{ values: largeValues }}>
   {#snippet template(args)}
     <div style="max-width: 420px">
-      <InputDistribution {...args} bind:min={largeMin} bind:max={largeMax} />
-      {@render readout(largeMin, largeMax)}
-    </div>
-  {/snippet}
-</Story>
-
-<Story name="Without number inputs" args={{ showInputs: false }}>
-  {#snippet template(args)}
-    <div style="max-width: 420px">
-      <InputDistribution
-        {...args}
-        bind:min={selectedMin}
-        bind:max={selectedMax}
-      />
-      {@render readout(selectedMin, selectedMax)}
+      <InputDistribution {...args} bind:min={rangeMin} bind:max={rangeMax} />
     </div>
   {/snippet}
 </Story>
@@ -276,11 +154,7 @@
 <Story name="Disabled" args={{ disabled: true }}>
   {#snippet template(args)}
     <div style="max-width: 420px">
-      <InputDistribution
-        {...args}
-        bind:min={selectedMin}
-        bind:max={selectedMax}
-      />
+      <InputDistribution {...args} bind:min={rangeMin} bind:max={rangeMax} />
     </div>
   {/snippet}
 </Story>
@@ -299,24 +173,13 @@
     <div
       style="max-width: 420px; display: flex; flex-direction: column; gap: 1rem;"
     >
-      <fieldset>
-        <legend>Temperature</legend>
-        <InputDistribution
-          {...args}
-          values={normalValues}
-          bind:min={multiAMin}
-          bind:max={multiAMax}
-        />
-      </fieldset>
-      <fieldset>
-        <legend>Rainfall ratio</legend>
-        <InputDistribution
-          {...args}
-          values={unitValues}
-          bind:min={multiBMin}
-          bind:max={multiBMax}
-        />
-      </fieldset>
+      <InputDistribution {...args} bind:min={rangeMin} bind:max={rangeMax} />
+      <InputDistribution
+        {...args}
+        values={unitValues}
+        bind:min={unitMin}
+        bind:max={unitMax}
+      />
       <p style="margin: 0; font-size: 0.85em; opacity: 0.7;">
         Clicking each "Min" label should focus only its own input.
       </p>
