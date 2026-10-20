@@ -323,7 +323,7 @@ A histogram with draggable handles and number inputs for selecting a numeric ran
 <InputDistribution values={myNumbers} bind:min bind:max />
 ```
 
-For large datasets, pass a sample of the values. Bars can be coloured by value by passing a function to `color`, which receives the midpoint of each bin and returns a CSS colour:
+For large datasets, pass a sample of the values. Bars can be coloured by value by passing a function to `color`, such as an [@abcnews/palette](https://github.com/abcnews/palette) which receives the midpoint of each bin and returns a CSS colour:
 
 ```svelte
 <InputDistribution
