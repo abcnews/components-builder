@@ -13,3 +13,5 @@ export { default as FormActions } from "./ItemCollection/FormActions.svelte";
 export { default as BuilderViewport } from "./BuilderViewport/BuilderViewport.svelte";
 export { default as Tabs } from "./Tabs/Tabs.svelte";
 export { default as FilePicker } from "./FilePicker/FilePicker.svelte";
+export { default as ButtonGroup } from "./ButtonGroup/ButtonGroup.svelte";
+export { default as InputDistribution } from "./InputDistribution/InputDistribution.svelte";
