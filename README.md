@@ -98,7 +98,11 @@ There are additional props to configure how the screenshots are taken:
 
 ### Typeahead
 
-The typeahead component uses a native HTML input element, in conjunction with the datalist element, to provide native searching and keyboard accessibility. The component implements its own multi-select functionality as that isn't available natively.
+The typeahead component uses a native HTML input element with the datalist element to provide native searching and keyboard accessibility. The component implements its own multi-select functionality as that isn't available natively. Selected items can be rearranged by dragging.
+
+Use `bind:value` to read and set the selection.
+
+The optional `item` snippet replaces the contents of each selected item. It receives `{ value, label, index, setValue, remove }`. Set `--typeahead-item-flex: 1 1 100%` on a parent to give each item its own row, and `--typeahead-items-max-height` to change the list height.
 
 ```svelte
 <Typeahead
@@ -107,9 +111,13 @@ The typeahead component uses a native HTML input element, in conjunction with th
     { value: "bne", label: "Brisbane" },
     { value: "syd", label: "Sydney" },
   ]}
-  value={["bne"]}
-  onChange={(newValue) => console.log(newValue)}
-/>
+  bind:value={selected}
+>
+  {#snippet item({ label, remove })}
+    {label}
+    <button onclick={remove}>Remove</button>
+  {/snippet}
+</Typeahead>
 ```
 
 ### ContextMenu
